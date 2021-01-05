@@ -1,6 +1,7 @@
 import java.security.KeyPair;
 import java.sql.Array;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static java.lang.Math.abs;
 
@@ -11,6 +12,23 @@ public class Nodo {
 
     public Nodo (String valor) {
         this.valor = valor;
+    }
+
+    public void setizq(Nodo izq){
+        this.izq = izq;
+    }
+
+    public void setder(Nodo der){
+        this.der = der;
+    }
+
+    public static Nodo getDerInt(Nodo nodo, int piso){
+        if (piso>1){
+            return getDerInt(nodo.der,piso-1);
+        }
+        else{
+            return nodo;
+        }
     }
 
     public static Nodo arbol( String s) {
@@ -41,44 +59,77 @@ public class Nodo {
             return pa;
         }
     }
-    //el de arriba esta bueno
-    //el de abajo no
 
-
-    //evaluar(nodo)->int
-    //mediante una recursion comprueba el valor de cada nodo
-    //para luego evaluarlo
-    public static int evaluate(Nodo nodo){
-        String r = "+-*/";
-        if(nodo.valor.equals("+")){
-            return evaluate(nodo.izq) + evaluate(nodo.der);
-        }
-        if(nodo.valor.equals("-")){
-            return evaluate(nodo.izq) - evaluate(nodo.der);
-
-        }
-        if(nodo.valor.equals("*")){
-            return evaluate(nodo.izq) + evaluate(nodo.der);
-        }
-        if(nodo.valor.equals("/")){
-            return evaluate(nodo.izq) / evaluate(nodo.der);
+    public static void preevaluate(Nodo nodo){
+        if (nodo.valor.equals("*") || nodo.valor.equals("/")){
+            if (nodo.der.valor.equals("*") || nodo.der.valor.equals("/") ||
+                    nodo.der.valor.equals("+") || nodo.der.valor.equals("-")) {
+                int hijoI = Integer.parseInt(nodo.izq.valor);//5
+                int hijoDI = Integer.parseInt(nodo.der.izq.valor);//6
+                if (nodo.valor.equals("*")) {
+                    nodo.izq.valor = "" + (hijoI * hijoDI); //30
+                }
+                if (nodo.valor.equals("/")) {
+                    nodo.izq.valor = "" + (hijoI / hijoDI); //30
+                }
+                nodo.valor = nodo.der.valor;
+                nodo.der = nodo.der.der;
+                if (nodo.valor.equals("+") || nodo.valor.equals("-")) {
+                    preevaluate(nodo.der);
+                }
+                if (nodo.valor.equals("*") || nodo.valor.equals("/")) {
+                    if (nodo.der.valor.equals("*") || nodo.der.valor.equals("/") ||
+                            nodo.der.valor.equals("+") || nodo.der.valor.equals("-")) {
+                        preevaluate(nodo);
+                    }
+                }
             }
-        else {
-            if (!nodo.valor.equals(null)) {
-                System.out.print(nodo.valor);
-                System.out.print("holiholi");
-                int k = Integer.parseInt(nodo.valor);
-                return k;
-            }
-            else{
-                return 0;
+        }
+        if (nodo.valor.equals("+") || nodo.valor.equals("-")){
+            if (nodo.der.valor.equals("*") || nodo.der.valor.equals("/") ||
+                    nodo.der.valor.equals("+") || nodo.der.valor.equals("-")) {
+                preevaluate(nodo.der);
             }
         }
     }
 
+    public static int evaluate2(Nodo nodo){
+        String r = "+-*/";
+        if(r.indexOf(nodo.valor)!=-1) {
+            if (nodo.valor.equals("+")) {
+                return evaluate2(nodo.izq) + evaluate2(nodo.der);
+            }
+            if (nodo.valor.equals("-")) {
+                return evaluate2(nodo.izq) - evaluate2(nodo.der);
+            }
+            if (nodo.valor.equals("*")) {
+                return evaluate2(nodo.izq) * evaluate2(nodo.der);
+            }
+            if (nodo.valor.equals("/")) {
+                return evaluate2(nodo.izq) / evaluate2(nodo.der);
+            }
+        }
+        else{
+            return Integer.parseInt(nodo.valor);
+        }
+        return 0;
+    }
+
+    public static int evaluate(Nodo nodo){
+        preevaluate(nodo);
+        int result = evaluate2(nodo);
+        return result;
+    }
+
+    /**
+     Copy:: nodo goal --> int
+     de a cuerdo a un nodo, se evalua su valor y se retorna
+     la diferencia entre la meta y el valor del nodo
+     **/
     public static Nodo copy(Nodo nodo){
         Nodo copia = new Nodo(nodo.valor);
-        copia = nodo;
+        copia.setder(nodo.der);
+        copia.setizq(nodo.izq);
         return copia;
     }
 
@@ -91,80 +142,57 @@ public class Nodo {
         }
     }
 
-
-    public static Nodo derivar(Nodo nodo,String x) {
-        String r = "+-/*";
-        if(r.indexOf(nodo.valor)!=-1) {
-            if (nodo.valor.equals("+")){
-                Nodo q = new Nodo(nodo.valor);
-                q.izq = derivar(nodo.izq,x);
-                q.der = derivar(nodo.der,x);
-                return q;
-            }
-            else if (nodo.valor.equals("-")){
-                Nodo q = new Nodo(nodo.valor);
-                q.izq = derivar(nodo.izq,x);
-                q.der = derivar(nodo.der,x);
-                return q;
-            }
-            else if (nodo.valor.equals("*")){
-                Nodo q = new Nodo("+");
-                q.izq = new Nodo("*");
-                q.der = new Nodo("*");
-                q.izq.izq = derivar(nodo.izq,x);
-                q.izq.der = nodo.der;
-                q.der.izq = nodo.izq;
-                q.der.der = derivar(nodo.der,x);
-                return q;
-            }
-            else{
-                Nodo q = new Nodo(nodo.valor);
-                q.izq = new Nodo("-");
-                q.der = new Nodo("*");
-                q.izq.izq = new Nodo("*");
-                q.izq.der = new Nodo("*");
-                q.izq.izq.izq = derivar(nodo.izq,x);
-                q.izq.izq.der = nodo.der;
-                q.izq.der.izq = nodo.izq;
-                q.izq.der.der = derivar(nodo.der, x);
-                q.der.izq = nodo.der;
-                q.der.der = nodo.der;
-                return q;
-            }
-        }
-        else if (nodo.valor.equals(x)){
-            return new Nodo("1");
-        }
-        else {
-            return new Nodo("0");
-        }
-    }
-
-
-
     //Creo que esta ya esta bien
-    public static List<Nodo> generate_Poblacion(int tamaño, int[] numeros){
+    public static List<Nodo> generate_Poblacion(int tamaño_poblacion, int[] numeros, int h_max){
         List<Nodo> population = new ArrayList<>();
         String[] operaciones = {"+", "-", "/", "*"};
-        for(int j = 0; j< tamaño; j++){
-            Random rand = new Random();
-            int tamaño_individual = rand.nextInt(numeros.length);
+        int individuo_numero = 0;
+        while(individuo_numero<tamaño_poblacion){
             String individual = "";
-            for(int i = 0; i<tamaño_individual; i++){
+            Random rand = new Random();
+            int randomNum = ThreadLocalRandom.current().nextInt(1, h_max);
+            if(randomNum == 1){
                 int randomm = rand.nextInt(numeros.length);
                 individual += Integer.toString(numeros[randomm]);
                 int op = rand.nextInt(4);
-                if(i!=tamaño_individual-1){
-                    individual += operaciones[op];
+                individual += operaciones[op];
+                randomm = rand.nextInt(numeros.length);
+                individual += Integer.toString(numeros[randomm]);
+                Nodo individual1 = arbol(individual);
+                population.add(individual1);
+            }
+
+            else {
+                for (int i = 0; i < randomNum; i++) {
+                    if (i != randomNum - 1) {
+                        int randomm = rand.nextInt(numeros.length);
+                        individual += Integer.toString(numeros[randomm]);
+                        int op = rand.nextInt(4);
+                        individual += operaciones[op];
+                    } else {
+                        int randomm = rand.nextInt(numeros.length);
+                        individual += Integer.toString(numeros[randomm]);
+
+                    }
+                    Nodo individual1 = arbol(individual);
+                    population.add(individual1);
                 }
             }
-            Nodo individual1 = arbol(individual);
-            population.add(individual1);
+            ++individuo_numero;
         }
         return population;
     }
 
-    //seems ok to me
+    public static int altura(Nodo nodo){
+        if(nodo == null)return 0;
+        return 1 + altura(nodo.der);
+    }
+
+    /**
+    fitness:: nodo goal --> int
+     de a cuerdo a un nodo, se evalua su valor y se retorna
+     la diferencia entre la meta y el valor del nodo
+    **/
     public static int fitness(Nodo genoma, int goal){
         int fit = evaluate(genoma);
         return abs(fit - goal);
@@ -189,66 +217,67 @@ public class Nodo {
         return vuelta;
     }
 
-    public static Nodo crossOver(Nodo a, Nodo b){//se puede mejorar este cross over
-        Nodo a2  = copy(a);
-        Nodo b2 = copy(b);
-        double option = Math.random() * 10;
-        if(option<5.0) {
-            Nodo vuelta = a2;
-            if(!b2.der.equals(null) && !a2.der.equals(null)){
-                double optionn = Math.random()*10;
-                if(optionn>5){
-                    vuelta.der=crossOver(a.der,b.der);
-                }
-                else{
-                    Nodo no = new Nodo(" ");
-                    vuelta.der = no;
-                }
-            }
-            return vuelta;
+    public static Nodo crossOver(Nodo a, Nodo b){
+        double option = Math.random();
+        String s = "";
+        if(option>0.5){
+            s+=a.valor;
         }
         else{
-            Nodo vuelta = b2;
-            if(!b2.der.equals(null) && !a2.der.equals(null)){
-                double optionn = Math.random()*10;
-                if(optionn>5){
-                    vuelta.der=crossOver(a.der,b.der);
-                }
-                else{
-                    Nodo no = new Nodo(" ");
-                    vuelta.der = no;
-                }
-            }
-            return vuelta;
+            s+=b.valor;
+        }
+        Nodo hijo = new Nodo(s);
+        if(option>0.5){
+            hijo.setizq(a.izq);
+        }
+        else{
+            hijo.setizq(b.izq);
+        }
+        double opcion2 = Math.random();
+        Random random = new Random();
+        if(opcion2<0.5){
+            int h = altura(a.der);
+            int randomNum = ThreadLocalRandom.current().nextInt(1, h);
+            hijo.setder(getDerInt(a.der,randomNum));
+        }
+        else{
+            int h = altura(b.der);
+            int randomNum = ThreadLocalRandom.current().nextInt(1, h);
+            hijo.setder(getDerInt(b.der,randomNum));
+        }
+        return hijo;
+    }
 
+    public void cambiarder(Nodo a, int piso){
+        if(piso>1){
+            cambiarder(a, piso-1);
+        }
+        else{
+            this.setder(a);
         }
     }
 
-    public static Nodo mutation(Nodo a){
-        Nodo c = copy(a);
-        double option = Math.random() * 10;
-        if (option<5.0){
-            //cambiar
+    public static Nodo mutation(Nodo a, int probabilidadMutar){
+        double option = Math.random();
+        if (option <= probabilidadMutar){
+            int h = altura(a.der);
+            int randomNum = ThreadLocalRandom.current().nextInt(1, h);
+            Nodo mutante = copy(a);
+            List<Nodo> lista = generate_Poblacion(1,new int[]{1, 2, 3, 4,5,6,7,8,9,10});
+            mutante.cambiarder(lista.get(0),randomNum);
+            return mutante;
         }
         else{
-
+            return a;
         }
-        return c;
     }
-
-//+Nodo q = arbol(expresion);
-    //Nodo q = (derivar(pilaArbol(expresion),variable));
-    //String e  = print(q);
-    //int j = evaluate(q);
-    //System.out.print(j);
-
 
     public static void main (String args[]) {
         System.out.println("Ingrese expresion");
         Scanner sc = new Scanner (System.in);
         String expresion = sc.nextLine();
         sc.close();
-        List<Nodo> nodos = generate_Poblacion(20, new int[]{1, 2, 3, 4,5,6,7,8,9,10});
+        List<Nodo> nodos = generate_Poblacion(20, new int[]{1, 2, 3, 4,5,6,7,8,9,10}, 6);
         for(int j=0;j<4;j++){
             String e  = print(nodos.get(j));
             System.out.print(e);
