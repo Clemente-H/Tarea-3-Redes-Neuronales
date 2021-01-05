@@ -198,22 +198,20 @@ public class Nodo {
         return abs(fit - goal);
     }
     //
-    public static List<Nodo> tournamet_selection(List<Nodo> population, int goal, int n_individual){
+    public static Nodo tournamet_selection(List<Nodo> population, int goal, int n_individual){
         Random rand =new Random();
         List<Nodo> potenciales_individual = population;
         HashMap<Integer,Nodo> fit_individual = new HashMap<>();
         List<Integer> llaves = new ArrayList<>();
         for(int i = 0; i<n_individual;i++) {
             int j = rand.nextInt(potenciales_individual.size());
-            int fit = fitness(potenciales_individual.get(i),goal);
+            int fit = fitness(potenciales_individual.get(j),goal);
             llaves.add(fit);
-            fit_individual.put(fit,potenciales_individual.get(i));
-            potenciales_individual.remove(i);
+            fit_individual.put(fit,potenciales_individual.get(j));
+            potenciales_individual.remove(j);
         }
         Collections.sort(llaves);
-        List<Nodo> vuelta =new ArrayList<>();
-        vuelta.add(fit_individual.get(llaves.get(0)));
-        vuelta.add(fit_individual.get(llaves.get(1)));
+        Nodo vuelta =fit_individual.get(llaves.get(0));
         return vuelta;
     }
 
@@ -257,13 +255,13 @@ public class Nodo {
         }
     }
 
-    public static Nodo mutation(Nodo a, int probabilidadMutar){
+    public static Nodo mutation(Nodo a, int probabilidadMutar,int[] numeros){
         double option = Math.random();
         if (option <= probabilidadMutar){
             int h = altura(a.der);
             int randomNum = ThreadLocalRandom.current().nextInt(1, h);
             Nodo mutante = copy(a);
-            List<Nodo> lista = generate_Poblacion(1,new int[]{1, 2, 3, 4,5,6,7,8,9,10});
+            List<Nodo> lista = generate_Poblacion(1,numeros,randomNum);
             mutante.cambiarder(lista.get(0),randomNum);
             return mutante;
         }
@@ -272,23 +270,78 @@ public class Nodo {
         }
     }
 
-    public static void main (String args[]) {
-        System.out.println("Ingrese expresion");
+    public static void main(String args[]) {
+        System.out.println("Ingrese numeros a usar");
         Scanner sc = new Scanner (System.in);
         String expresion = sc.nextLine();
-        sc.close();
-        List<Nodo> nodos = generate_Poblacion(20, new int[]{1, 2, 3, 4,5,6,7,8,9,10}, 6);
-        for(int j=0;j<4;j++){
-            String e  = print(nodos.get(j));
-            System.out.print(e);
-            System.out.print("\n");
-        }
-        List<Nodo> nodos2 = tournamet_selection(nodos,5,3);
-        for(int l = 0;l<3;l++){
-            String e  = print(nodos.get(l));
-            System.out.print(e);
-            System.out.print("\n");
-        }
 
+        System.out.println("Ingrese probabilidad de mutacion");
+        String mutancion_prob = sc.nextLine();
+
+        System.out.println("Ingrese meta");
+        String meta = sc.nextLine();
+
+        System.out.println("Ingrese numero individuos poblacion");
+        String numero_individuos = sc.nextLine();
+
+        System.out.println("Ingrese altura maxima Arbol");
+        String hmax = sc.nextLine();
+
+        System.out.println("Ingrese individuos para Tournament Selection");
+        String tournament_n = sc.nextLine();
+
+        System.out.println("numero maximo de generaciones");
+        String n_max_g= sc.nextLine();
+
+        System.out.println("numero hijos por generacion");
+        String hijos_x_gen= sc.nextLine();
+
+
+        sc.close();
+        int Tamaño_poblacion = Integer.parseInt(numero_individuos);
+
+        String[] numero = expresion.split(" ");
+        int[] N_arr = new int[numero.length];
+        for(int o = 0; o <numero.length;o++){
+            N_arr[o]=Integer.parseInt(numero[o]);
+        }
+         int h_m_ax = Integer.parseInt(hmax);
+
+        List<Nodo> nodos = generate_Poblacion(Tamaño_poblacion, N_arr, h_m_ax);
+
+        int goal = Integer.parseInt(meta);
+
+        int n_tournament = Integer.parseInt(tournament_n);
+
+        int ult_generaion = Integer.parseInt(n_max_g);
+
+        int res=0;
+        int generacion = 1;
+
+        int n_hijos_gen = Integer.parseInt(hijos_x_gen);
+
+
+        while( res!=goal && generacion<ult_generaion){
+
+            for(int k = 0; k<n_hijos_gen;k++){
+                int randomNum1 = ThreadLocalRandom.current().nextInt(1, Tamaño_poblacion);
+                nodos.remove(randomNum1);
+                Nodo Hijo = tournamet_selection(nodos,goal,n_tournament);
+                nodos.add(Hijo);
+            }
+            for(int t = 0; t<Tamaño_poblacion;t++){
+                int fit_c_u = fitness(nodos.get(t),goal);
+                if(fit_c_u == 0){
+                    String e  = print(nodos.get(t));
+                    System.out.print(e);
+                    System.out.print("\n");
+                    String n = "encontrado en la generacion" + generacion;
+                    System.out.print(n);
+                    break;
+                }
+            }
+            generacion++;
+
+        }
     }
 }
