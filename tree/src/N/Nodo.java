@@ -211,14 +211,14 @@ public class Nodo {
     }
 
     /**
-     * @param tamaño_poblacion
-     *        el
+     * @param tamano_poblacion
+     *        el tamaño de la poblacion que será generada
      * @param numeros
-     *        los
+     *        los numeros de la expresion
      * @param h_max
-     *        la
+     *        la altura del arbol
      *
-     * @return
+     * @return una lista de nodos generados
      */
     public static List<Nodo> generate_Poblacion(int tamano_poblacion, int[] numeros, int h_max){
         List<Nodo> population = new ArrayList<>();
@@ -240,16 +240,18 @@ public class Nodo {
             }
 
             else {
-                for (int i = 0; i < randomNum; i++) {
-                    if (i != randomNum - 1) {
+                int i = randomNum;
+                while(i>0){
+                    if (i != 1) {
                         int randomm = rand.nextInt(numeros.length);
                         individual += Integer.toString(numeros[randomm]);
                         int op = rand.nextInt(4);
                         individual += operaciones[op];
+                        i--;
                     } else {
                         int randomm = rand.nextInt(numeros.length);
                         individual += Integer.toString(numeros[randomm]);
-
+                        i--;
                     }
                     Nodo individual1 = arbol(individual);
                     population.add(individual1);
@@ -273,15 +275,15 @@ public class Nodo {
         return 1 + altura(nodo.der);
     }
 
-/**
- fitness:: nodo goal --> int
- de a cuerdo a un nodo, se evalua su valor y se retorna
- la diferencia entre la meta y el valor del nodo
- **/
+
     /**
+     * Evalua la diferencia absoluta entre el valor de un arbol y el goal pretendido
+     *
      * @param genoma
+     *        nodo a evaluar
      * @param goal
-     * @return
+     *        resultado meta al que se debe llegar
+     * @return fitness  del nodo
      */
     public static int fitness(Nodo genoma, int goal){
         int fit = evaluate(genoma);
@@ -289,10 +291,15 @@ public class Nodo {
     }
 
     /**
+     * Selecciona al arbol con un valor de evaluación más cercano a la meta
+     *
      * @param population
+     *        lista con la población de arboles
      * @param goal
+     *        meta a alcanzar
      * @param n_individual
-     * @return
+     *        cantidad de individuos
+     * @return el arbol más cercano
      */
     //
     public static Nodo tournamet_selection(List<Nodo> population, int goal, int n_individual){
@@ -313,9 +320,13 @@ public class Nodo {
     }
 
     /**
+     * Crea un nuevo individuo a partir de un cruce entre dos arboles padres
+     *
      * @param a
+     *        nodo a que será cruzado
      * @param b
-     * @return
+     *        nodo b que será cruzado
+     * @return nodo producto del crossover entre a y b
      */
     public static Nodo crossOver(Nodo a, Nodo b){
         double option = Math.random();
@@ -349,10 +360,12 @@ public class Nodo {
     }
 
     /**
-     *
+     * Cambia la rama derecha de un nodo
      *
      * @param nodo
+     *        nodo a modificar
      * @param piso
+     *        piso en que se hará la modificación
      */
     public void cambiarder(Nodo nodo, int piso){
         if(piso>1){
@@ -364,10 +377,16 @@ public class Nodo {
     }
 
     /**
+     * Muta a un individuo
+     *
      * @param a
+     *        nodo a mutar
      * @param probabilidadMutar
+     *        probabilidad de que mute el arbol
      * @param numeros
-     * @return
+     *        pool de numeros
+     *
+     * @return el nodo mutado
      */
     public static Nodo mutation(Nodo a, double probabilidadMutar,int[] numeros){
         double option = Math.random();

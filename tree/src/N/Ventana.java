@@ -30,12 +30,12 @@ public class Ventana extends JFrame{
         getContentPane().add(panel);
         // Fuente de Datos
         DefaultCategoryDataset line_chart_dataset = new DefaultCategoryDataset();
-        MainP1();
-        for (int i = 0; i < getIterations().size();i++){
-            line_chart_dataset.addValue(getBestFitness().get(i), "best", getIterations().get(i));
-            line_chart_dataset.addValue(getWorstFitness().get(i), "worst", getIterations().get(i));
-            line_chart_dataset.addValue(getAverageFitness().get(i), "average", getIterations().get(i));
-        }
+        //MainP1();
+        //for (int i = 0; i < getIterations().size();i++){
+          //  line_chart_dataset.addValue(getBestFitness().get(i), "best", getIterations().get(i));
+           // line_chart_dataset.addValue(getWorstFitness().get(i), "worst", getIterations().get(i));
+           // line_chart_dataset.addValue(getAverageFitness().get(i), "average", getIterations().get(i));
+        //}
         // Creando el Grafico
         JFreeChart chart=ChartFactory.createLineChart("Fitness vs generación",
                 "Generación","Fitness",line_chart_dataset, PlotOrientation.VERTICAL,

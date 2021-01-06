@@ -5,8 +5,11 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static N.Nodo.*;
 
+/**
+ * Clase hecha para probar la estructura creada en el problema 1 de la tarea
+ */
 public class Problem1 {
-    private static List<Integer> worstFitness;
+    List<Integer> worstFitness;
     static int[] expresion = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     static double mutacion_prob = 0.5;
     static int goal = 7;
@@ -16,11 +19,14 @@ public class Problem1 {
     static int n_hijos_gen = 1000;
     static int res = 0;
     static int generacion = 1;
-    private static List<Integer> bestFitness;
-    private static List<Double> averageFitness;
-    private static List<Integer> iterations;
+    List<Integer> bestFitness;
+    List<Double> averageFitness;
+    List<Integer> iterations;
 
-    public static void MainP1() {
+    /**
+     * Genera las listas de las
+     */
+    public void MainP1() {
         List<Nodo> nodos = generate_Poblacion(tamanoPoblacion, expresion, h_m_ax);
         while (true) {
             for (int k = 0; k < n_hijos_gen; k++) {
@@ -57,24 +63,40 @@ public class Problem1 {
         }
     }
 
-    public static List<Integer> getBestFitness (){
+    /**
+     * Entrega la lista con los mejores fitness de cada iteración hasta alcanzar la meta
+     *
+     * @return Lista de los mejores fitness
+     */
+    public List<Integer> getBestFitness (){
         return bestFitness;
     }
 
-    public static List<Integer> getWorstFitness(){
+    /**
+     * Entrega la lista con los peores fitness de cada iteración hasta alcanzar la meta
+     *
+     * @return Lista de los peores fitness
+     */
+    public List<Integer> getWorstFitness(){
         return worstFitness;
     }
 
-    public static List<Double> getAverageFitness (){
+    /**
+     * Entrega la lista con los fitness promedio de cada iteracioón hasta alcanzar la meta
+     *
+     * @return Lista de los fitness promedio
+     */
+    public List<Double> getAverageFitness (){
         return averageFitness;
     }
 
-    public static List<Integer> getIterations(){
+    /**
+     * Entrega la lista con las iteraciones realizadas hasta alcanzar la meta
+     *
+     * @return Lista de las iteraciones de la 1 hasta la final
+     */
+    public List<Integer> getIterations(){
         return iterations;
     }
 
-    public static void main (String args[]) {
-        MainP1();
-        getWorstFitness();
-    }
 }
