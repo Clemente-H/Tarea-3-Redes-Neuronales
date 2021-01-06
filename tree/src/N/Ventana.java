@@ -9,6 +9,10 @@ import org.jfree.data.category.DefaultCategoryDataset;
 
 import javax.swing.*;
 
+import java.util.List;
+
+import static N.Problem1.*;
+
 
 public class Ventana extends JFrame{
     JPanel panel;
@@ -26,15 +30,15 @@ public class Ventana extends JFrame{
         getContentPane().add(panel);
         // Fuente de Datos
         DefaultCategoryDataset line_chart_dataset = new DefaultCategoryDataset();
-        line_chart_dataset.addValue(80, "visitas", "Julio");
-        line_chart_dataset.addValue(300, "visitas", "Agosto");
-        line_chart_dataset.addValue(600, "visitas", "Septiembre");
-        line_chart_dataset.addValue(1200, "visitas", "Octubre");
-        line_chart_dataset.addValue(2400, "visitas", "Noviembre");
-
+        MainP1();
+        for (int i = 0; i < getIterations().size();i++){
+            line_chart_dataset.addValue(getBestFitness().get(i), "best", getIterations().get(i));
+            line_chart_dataset.addValue(getWorstFitness().get(i), "worst", getIterations().get(i));
+            line_chart_dataset.addValue(getAverageFitness().get(i), "average", getIterations().get(i));
+        }
         // Creando el Grafico
-        JFreeChart chart=ChartFactory.createLineChart("Trafico en el Blog",
-                "Mes","Visitas",line_chart_dataset, PlotOrientation.VERTICAL,
+        JFreeChart chart=ChartFactory.createLineChart("Fitness vs generación",
+                "Generación","Fitness",line_chart_dataset, PlotOrientation.VERTICAL,
                 true,true,false);
 
         // Mostrar Grafico

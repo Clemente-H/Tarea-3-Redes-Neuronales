@@ -369,7 +369,7 @@ public class Nodo {
      * @param numeros
      * @return
      */
-    public static Nodo mutation(Nodo a, int probabilidadMutar,int[] numeros){
+    public static Nodo mutation(Nodo a, double probabilidadMutar,int[] numeros){
         double option = Math.random();
         if (option <= probabilidadMutar){
             int h = altura(a.der);
